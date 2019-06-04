@@ -35,7 +35,7 @@ class EmonHubPacketGenInterfacer(EmonHubInterfacer):
               "/emoncms/packetgen/getpacket.json?apikey="
 
         try:
-            packet = urllib2.urlopen(req + self._settings['apikey']).read()
+            packet = urllib.request.urlopen(req + self._settings['apikey']).read()
         except:
             return
 
@@ -97,7 +97,7 @@ class EmonHubPacketGenInterfacer(EmonHubInterfacer):
                 return
 
             try:
-                 z = urllib2.urlopen(self._settings['url'] +
+                 z = urllib.request.urlopen(self._settings['url'] +
                                      "/emoncms/packetgen/getinterval.json?apikey="
                                      + self._settings['apikey']).read()
                  i = int(z[1:-1])
@@ -118,9 +118,9 @@ class EmonHubPacketGenInterfacer(EmonHubInterfacer):
 
         """
 
-        for key, setting in self._pg_settings.iteritems():
+        for key, setting in self._pg_settings.items():
             # Decide which setting value to use
-            if key in kwargs.keys():
+            if key in list(kwargs.keys()):
                 setting = kwargs[key]
             else:
                 setting = self._pg_settings[key]

@@ -38,7 +38,7 @@ class EmonHubMqttInterfacer(EmonHubInterfacer):
             'mqtt_user':mqtt_user,
             'mqtt_passwd':mqtt_passwd
         })
-
+        print(self.init_settings)
         self._connected = False          
                   
         self._mqttc = mqtt.Client()
@@ -243,9 +243,9 @@ class EmonHubMqttInterfacer(EmonHubInterfacer):
         
         super (EmonHubMqttInterfacer, self).set(**kwargs)
 
-        for key, setting in self._mqtt_settings.iteritems():
+        for key, setting in self._mqtt_settings.items():
             #valid = False
-            if not key in kwargs.keys():
+            if not key in list(kwargs.keys()):
                 setting = self._mqtt_settings[key]
             else:
                 setting = kwargs[key]

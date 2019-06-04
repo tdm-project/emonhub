@@ -119,9 +119,9 @@ class EmonHubTemplateInterfacer(EmonHubInterfacer):
 
         """
 
-        for key, setting in self._template_settings.iteritems():
+        for key, setting in self._template_settings.items():
             # Decide which setting value to use
-            if key in kwargs.keys():
+            if key in list(kwargs.keys()):
                 setting = kwargs[key]
             else:
                 setting = self._template_settings[key]

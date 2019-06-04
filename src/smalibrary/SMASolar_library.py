@@ -3,9 +3,9 @@
 
 from collections import namedtuple
 import time
-from __builtin__ import long
-from SMABluetoothPacket import SMABluetoothPacket
-from SMANET2PlusPacket import SMANET2PlusPacket
+from builtins import int
+from .SMABluetoothPacket import SMABluetoothPacket
+from .SMANET2PlusPacket import SMANET2PlusPacket
 from datetime import datetime
 
 __author__ = 'Stuart Pittaway'
@@ -214,7 +214,7 @@ def logon(btSocket,mylocalBTAddress,MySerialNumber,packet_send_counter, Inverter
     #Timeout = 900sec ?
     pluspacket1.pushLong(0x00000384)
 
-    pluspacket1.pushLong(long(time.mktime(datetime.today().timetuple())))
+    pluspacket1.pushLong(int(time.mktime(datetime.today().timetuple())))
 
     pluspacket1.pushLong(0x00000000)
     pluspacket1.pushByteArray(InverterPasswordArray)

@@ -2,10 +2,10 @@ import threading
 import datetime
 import time
 
-from BaseHTTPServer import BaseHTTPRequestHandler
-from Queue import Queue
-from SocketServer import TCPServer, ThreadingMixIn
-from urlparse import parse_qs
+from http.server import BaseHTTPRequestHandler
+from queue import Queue
+from socketserver import TCPServer, ThreadingMixIn
+from urllib.parse import parse_qs
 
 import Cargo
 import emonhub_coder as ehc
@@ -93,11 +93,11 @@ class EmonHubSmilicsInterfacer(EmonHubInterfacer):
         """
         try:
             c = Cargo.new_cargo()
-            if 'mac' not in smilics_dict.keys():
+            if 'mac' not in list(smilics_dict.keys()):
                 return None
 
             c.nodeid = smilics_dict['mac'][0]
-            if c.nodeid not in ehc.nodelist.keys():
+            if c.nodeid not in list(ehc.nodelist.keys()):
                 self._log.debug(str(c.nodeid) + " Not in config")
                 return None
 
@@ -126,7 +126,7 @@ class EmonHubSmilicsInterfacer(EmonHubInterfacer):
     def set(self, **kwargs):
         """ Override default settings with settings entered in the config file
         """
-        for key, setting in self._settings.iteritems():
-            if key in kwargs.keys():
+        for key, setting in self._settings.items():
+            if key in list(kwargs.keys()):
                 # replace default
                 self._settings[key] = kwargs[key]

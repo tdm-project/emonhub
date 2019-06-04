@@ -92,3 +92,30 @@ To view the emonhub log via terminal on the emonpi or emonbase:
 If you're using Emoncms on the same Raspberry Pi as emonhub, you may find the emoncms config module useful which provides in-browser access to `emonhub.conf` and `emonhub.log`:
 
 https://github.com/emoncms/config
+
+
+### Changes for python3 and TDM project
+
+In install.sh the emonSD_pi_env=1 is fixed
+
+Run 2to3 -w emonhub
+
+correct tabs in /src/interfacers/EmonHubJeeInterfacer.py line 81
+
+
+Correct EmonHubJeeInterfacer 
+
+line 32: self._ser.write("v".encode())
+
+line 34: self._rx_buf = self._rx_buf + self._ser.readline().decode()
+
+line 37: info = self._rx_buf + self._ser.readline().decode()[:-2]
+
+line 95: self._rx_buf = self._rx_buf + self._ser.readline().decode()
+
+line 209: self._ser.write(command.encode())
+
+line 232: self._ser.write(("00,%02d,%02d,00,s" % (now.hour, now.minute)).encode())
+
+line 270: self._ser.write(payload.encode())
+

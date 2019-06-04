@@ -12,7 +12,7 @@ Monitors the serial port for data
 
 class EmonHubVEDirectInterfacer(EmonHubInterfacer):
 
-    (WAIT_HEADER, IN_KEY, IN_VALUE, IN_CHECKSUM) = range(4)
+    (WAIT_HEADER, IN_KEY, IN_VALUE, IN_CHECKSUM) = list(range(4))
 
     def __init__(self, name, com_port='', com_baud=9600, toextract='' , poll_interval=30):
         """Initialize interfacer
@@ -133,7 +133,7 @@ class EmonHubVEDirectInterfacer(EmonHubInterfacer):
                 tempval = 0
                 try:
                     tempval = float(data[key])
-                except Exception,e:
+                except Exception as e:
                     tempval = data[key]
                 if not isinstance(tempval,float):
                     if data[key] == "OFF":
@@ -154,7 +154,7 @@ class EmonHubVEDirectInterfacer(EmonHubInterfacer):
                 if packet != None:
                     self._rx_buf = packet
 
-        except Exception,e:
+        except Exception as e:
             self._log.error(e)
             self._rx_buf = ""
 

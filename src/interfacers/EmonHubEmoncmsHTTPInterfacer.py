@@ -39,7 +39,7 @@ class EmonHubEmoncmsHTTPInterfacer(EmonHubInterfacer):
         # [[timestamp, nodeid, datavalues][timestamp, nodeid, datavalues]]
         # [[1399980731, 10, 150, 250 ...]]
         
-        if not 'apikey' in self._settings.keys() or str.__len__(str(self._settings['apikey'])) != 32 \
+        if not 'apikey' in list(self._settings.keys()) or str.__len__(str(self._settings['apikey'])) != 32 \
                 or str.lower(str(self._settings['apikey'])) == 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx':
             # Return true to clear buffer if the apikey is not set
             return True
@@ -79,7 +79,7 @@ class EmonHubEmoncmsHTTPInterfacer(EmonHubInterfacer):
             
             
     def sendstatus(self):
-        if not 'apikey' in self._settings.keys() or str.__len__(str(self._settings['apikey'])) != 32 \
+        if not 'apikey' in list(self._settings.keys()) or str.__len__(str(self._settings['apikey'])) != 32 \
                 or str.lower(str(self._settings['apikey'])) == 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx':
             return
         
@@ -101,9 +101,9 @@ class EmonHubEmoncmsHTTPInterfacer(EmonHubInterfacer):
 
         super (EmonHubEmoncmsHTTPInterfacer, self).set(**kwargs)
 
-        for key, setting in self._cms_settings.iteritems():
+        for key, setting in self._cms_settings.items():
             #valid = False
-            if not key in kwargs.keys():
+            if not key in list(kwargs.keys()):
                 setting = self._cms_settings[key]
             else:
                 setting = kwargs[key]

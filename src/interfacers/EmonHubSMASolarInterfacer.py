@@ -231,7 +231,7 @@ class EmonHubSMASolarInterfacer(EmonHubInterfacer):
 
 
             #Get first inverter in dictionary
-            inverter=self._Inverters[ self._Inverters.keys()[0] ]
+            inverter=self._Inverters[ list(self._Inverters.keys())[0] ]
             self._log.debug("Reading from inverter "+inverter["inverterName"] )
 
 

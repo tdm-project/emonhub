@@ -2,7 +2,7 @@ import serial
 import time
 import Cargo
 import re
-import EmonHubSerialInterfacer as ehi
+from . import EmonHubSerialInterfacer as ehi
 
 """class EmonHubTx3eInterfacer
 
@@ -95,8 +95,8 @@ class EmonHubTx3eInterfacer(ehi.EmonHubSerialInterfacer):
         return c
         
     def set(self, **kwargs):
-        for key,setting in self._settings.iteritems():
-            if key in kwargs.keys():
+        for key,setting in self._settings.items():
+            if key in list(kwargs.keys()):
                 # replace default
                 # self._log.debug(kwargs[key])
                 self._settings[key] = kwargs[key]

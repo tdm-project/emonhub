@@ -42,7 +42,7 @@ class EmonModbusTcpInterfacer(EmonHubInterfacer):
 
     def set(self, **kwargs):
 
-        for key in kwargs.keys():
+        for key in list(kwargs.keys()):
             setting = kwargs[key]
             self._settings[key] = setting
             self._log.debug("Setting " + self.name + " %s: %s" % (key, setting) )

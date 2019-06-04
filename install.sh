@@ -1,14 +1,15 @@
 #!/bin/bash
 # -------------------------------------------------------------
-# emonHub install script
+# emonHub install script for TDM
 # -------------------------------------------------------------
 # Assumes emonhub repository installed via git:
-# git clone https://github.com/openenergymonitor/emonhub.git
+# git clone https://github.com/lmssdd/emonhub.git
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 usrdir=${DIR/\/emonhub/}
 
-emonSD_pi_env=$1
+# emonSD_pi_env=$1
+emonSD_pi_env=1
 if [ "$emonSD_pi_env" = "" ]; then
     read -sp 'Apply raspberrypi serial configuration? 1=yes, 0=no: ' emonSD_pi_env
     echo 
@@ -17,7 +18,7 @@ if [ "$emonSD_pi_env" = "" ]; then
 fi
 
 sudo apt-get install -y python-serial python-configobj
-sudo pip install paho-mqtt requests
+sudo pip3 install paho-mqtt requests
 
 if [ "$emonSD_pi_env" = "1" ]; then
     # RaspberryPi Serial configuration

@@ -85,14 +85,14 @@ class SMANET2PlusPacket:
     def getTwoByte(self, offset):
         value = self.packet[offset] * math.pow(256, 0)
         value += self.packet[offset + 1] * math.pow(256, 1)
-        return long(value);
+        return int(value);
 
     def getFourByteLong(self, offset):
         value = self.packet[offset] * math.pow(256, 0)
         value += self.packet[offset + 1] * math.pow(256, 1)
         value += self.packet[offset + 2] * math.pow(256, 2)
         value += self.packet[offset + 3] * math.pow(256, 3)
-        return long(value);
+        return int(value);
 
     def getEightByte(self, offset):
         return self.packet[offset] * math.pow(256, 0) \

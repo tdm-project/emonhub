@@ -62,7 +62,7 @@ class EmonHubGraphiteInterfacer(EmonHubInterfacer):
             frame = databuffer[c]
             nodename = frame['node']
             
-            for inputname,value in frame['data'].iteritems():
+            for inputname,value in frame['data'].items():
                 # path
                 path = self._settings['prefix']+'.'+nodename+"."+inputname
                 # payload
@@ -109,8 +109,8 @@ class EmonHubGraphiteInterfacer(EmonHubInterfacer):
     
     def set(self, **kwargs):
         super (EmonHubGraphiteInterfacer, self).set(**kwargs)
-        for key,setting in self._graphite_settings.iteritems():
-            if key in kwargs.keys():
+        for key,setting in self._graphite_settings.items():
+            if key in list(kwargs.keys()):
                 # replace default
                 self._settings[key] = kwargs[key]
 

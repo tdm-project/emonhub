@@ -14,7 +14,7 @@ import logging
 import socket
 import select
 import threading
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import json
 import uuid
 import traceback
@@ -249,13 +249,13 @@ class EmonHubInterfacer(threading.Thread):
         """
 
         reply = ""
-        request = urllib2.Request(post_url, post_body)
+        request = urllib.request.Request(post_url, post_body)
         try:
-            response = urllib2.urlopen(request, timeout=60)
-        except urllib2.HTTPError as e:
+            response = urllib.request.urlopen(request, timeout=60)
+        except urllib.error.HTTPError as e:
             self._log.warning(self.name + " couldn't send to server, HTTPError: " +
                               str(e.code))
-        except urllib2.URLError as e:
+        except urllib.error.URLError as e:
             self._log.warning(self.name + " couldn't send to server, URLError: " +
                               str(e.reason))
         except httplib.HTTPException:
@@ -603,8 +603,8 @@ class EmonHubInterfacer(threading.Thread):
         """
     #def setall(self, **kwargs):
 
-        for key, setting in self._defaults.iteritems():
-            if key in kwargs.keys():
+        for key, setting in self._defaults.items():
+            if key in list(kwargs.keys()):
                 setting = kwargs[key]
             else:
                 setting = self._defaults[key]
