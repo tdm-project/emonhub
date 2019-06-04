@@ -38,7 +38,6 @@ class EmonHubMqttInterfacer(EmonHubInterfacer):
             'mqtt_user':mqtt_user,
             'mqtt_passwd':mqtt_passwd
         })
-        print(self.init_settings)
         self._connected = False          
                   
         self._mqttc = mqtt.Client()
@@ -91,12 +90,15 @@ class EmonHubMqttInterfacer(EmonHubInterfacer):
     def _process_post(self, databuffer):
         if not self._connected:
             self._log.info("Connecting to MQTT Server")
-            try:
-                self._mqttc.username_pw_set(self.init_settings['mqtt_user'], self.init_settings['mqtt_passwd'])
-                self._mqttc.connect(self.init_settings['mqtt_host'], self.init_settings['mqtt_port'], 60)
-            except:
-                self._log.info("Could not connect...")
-                time.sleep(1.0)
+            #try:
+            #    self._mqttc.username_pw_set(self.init_settings['mqtt_user'], self.init_settings['mqtt_passwd'])
+            #    self._mqttc.connect(self.init_settings['mqtt_host'], self.init_settings['mqtt_port'], 60)
+            #except:
+            #    self._log.info("Could not connect...")
+            #    time.sleep(1.0)
+            print(self.init_settings['mqtt_port'], type(self.init_settings['mqtt_port']))
+            self._mqttc.username_pw_set(self.init_settings['mqtt_user'], self.init_settings['mqtt_passwd'])
+            self._mqttc.connect(self.init_settings['mqtt_host'], int(self.init_settings['mqtt_port']), 60)
             
         else:
             frame = databuffer[0]

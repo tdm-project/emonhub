@@ -56,14 +56,16 @@ class EmonHubEmoncmsHTTPInterfacer(EmonHubInterfacer):
         sentat = int(time.time())
 
         # Construct post_url (without apikey)
-        post_url = self._settings['url']+'/input/bulk'+'.json?apikey='
-        post_body = "data="+data_string+"&sentat="+str(sentat)
+        post_url = self._settings['url']+'/input/bulk'+'.json'  #?apikey='
+        post_body = "apikey=" + self._settings['apikey'] + "&data="+data_string+"&sentat="+str(sentat)
 
         # logged before apikey added for security
-        self._log.info("sending: " + post_url + "E-M-O-N-C-M-S-A-P-I-K-E-Y&" + post_body)
+        #self._log.info("sending: " + post_url + "E-M-O-N-C-M-S-A-P-I-K-E-Y&" + post_body)
+        #self._log.info("sending: " + post_url + "&xxxx&" + post_body)
+        #self._log.info("sending: " + post_url + self._settings['apikey'] + "&" + post_body)
 
         # Add apikey to post_url
-        post_url = post_url + self._settings['apikey']
+        #post_url = post_url + self._settings['apikey']
 
         # The Develop branch of emoncms allows for the sending of the apikey in the post
         # body, this should be moved from the url to the body as soon as this is widely

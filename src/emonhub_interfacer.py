@@ -249,7 +249,12 @@ class EmonHubInterfacer(threading.Thread):
         """
 
         reply = ""
+        if type(post_body) == str:
+            post_body = post_body.encode()
         request = urllib.request.Request(post_url, post_body)
+        self._log.info("XXXXXXX %s" % request.full_url)
+        self._log.info("XXXXXXX %s" % request.data)
+        
         try:
             response = urllib.request.urlopen(request, timeout=60)
         except urllib.error.HTTPError as e:
@@ -267,7 +272,7 @@ class EmonHubInterfacer(threading.Thread):
         else:
             reply = response.read()
         finally:
-            return reply
+            return reply.decode()
             
     def _process_rx(self, cargo):
         """Process a frame of data
