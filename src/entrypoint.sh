@@ -2,5 +2,5 @@
 
 cd ${APP_HOME}
 . venv/bin/activate
-python src/emonhub.py $@
+python emonhub/src/emonhub.py $@
 
