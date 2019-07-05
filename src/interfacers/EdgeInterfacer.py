@@ -2,6 +2,7 @@
 
 """
 import time
+from datetime import datetime
 import paho.mqtt.client as mqtt
 import influxdb
 from emonhub_interfacer import EmonHubInterfacer
@@ -64,7 +65,7 @@ class EdgeInterfacer(EmonHubInterfacer):
         )
         
         self._influxdb_dbs = self._influxdb_client.get_list_database()
-        if _db not in [_d['name'] for _d in self.influxdb_dbs]:
+        if _db not in [_d['name'] for _d in self._influxdb_dbs]:
             self._log.info("InfluxDB database '{:s}' not found. Creating a new one.".format(_db))
         self._influxdb_client.create_database(_db)
     
@@ -182,8 +183,13 @@ class EdgeInterfacer(EmonHubInterfacer):
                     self._log.info("Publishing error? returned 4")
                     return False
                     
-        if self._infuxdb_client.ping() == None:
+        if self._influxdb_client.ping() == None:
             self.influxdb_connect()
+        
+        frame = databuffer[0]
+        nodename = frame['node']
+        nodeid = frame['nodeid']
+        t_now = datetime.now().timestamp()
         
         json_body = []
         
@@ -195,15 +201,16 @@ class EdgeInterfacer(EmonHubInterfacer):
             
             item = {
                 "measurement": nodename,
+                "time": int(t_now), # int(time.time()) 
                 "fields": {
-                    inputname: str(value)
+                    inputname: value
                 }
             }
             
-            self._log.debug("Appendinging: "+item)
+            self._log.debug("Appendinging: " + str(item))
             json_body.append(item)
             
-        result = self._influxdb_client.write_points(json_body)
+        result = self._influxdb_client.write_points(json_body, time_precision='s')
             
         if not result:
             self._log.info("Writing error on influxdb")
@@ -322,3 +329,5 @@ class EdgeInterfacer(EmonHubInterfacer):
                 continue
             else:
                 self._log.warning("'%s' is not valid for %s: %s" % (setting, self.name, key))
+
+
