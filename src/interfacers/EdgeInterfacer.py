@@ -1,12 +1,13 @@
-"""class EdgeMqttGenInterfacer
+"""class EdgeInterfacer
 
 """
 import time
 import paho.mqtt.client as mqtt
+import influxdb
 from emonhub_interfacer import EmonHubInterfacer
 import Cargo
 
-class EdgeMqttInterfacer(EmonHubInterfacer):
+class EdgeInterfacer(EmonHubInterfacer):
 
     def __init__(self, name, mqtt_user=" ", mqtt_passwd=" ", mqtt_host="127.0.0.1", mqtt_port=1883):
         """Initialize interfacer
@@ -14,7 +15,7 @@ class EdgeMqttInterfacer(EmonHubInterfacer):
         """
         
         # Initialization
-        super(EdgeMqttInterfacer, self).__init__(name)
+        super(EdgeInterfacer, self).__init__(name)
 
         # set the default setting values for this interfacer
         self._defaults.update({'datacode': '0'})
@@ -45,7 +46,29 @@ class EdgeMqttInterfacer(EmonHubInterfacer):
         self._mqttc.on_disconnect = self.on_disconnect
         self._mqttc.on_message = self.on_message
         self._mqttc.on_subscribe = self.on_subscribe
-
+        
+        self._influxdb_client = None
+        self.influxdb_connect()
+    
+    
+    def influxdb_connect(self):
+        
+        _db = 'Emon'
+        
+        self._influxdb_client = influxdb.InfluxDBClient(
+            host='influxdb',
+            port='8086',
+            username='root',
+            password='root',
+            database=_db
+        )
+        
+        self._influxdb_dbs = self._influxdb_client.get_list_database()
+        if _db not in [_d['name'] for _d in self.influxdb__dbs]:
+            self._log.info("InfluxDB database '{:s}' not found. Creating a new one.".format(_db))
+        self._influxdb_client.create_database(_db)
+    
+    
     def add(self, cargo):
         """Append data to buffer.
         
@@ -159,6 +182,33 @@ class EdgeMqttInterfacer(EmonHubInterfacer):
                     self._log.info("Publishing error? returned 4")
                     return False
                     
+        if self._infuxdb_client.ping() == None:
+            self.influxdb_connect()
+        
+        json_body = []
+        
+        for i in range(0,len(frame['data'])):
+            inputname = str(i+1)
+            if i<len(frame['names']):
+                inputname = frame['names'][i]
+            value = frame['data'][i]
+            
+            item = {
+                "measurement": nodename,
+                "fields": {
+                    inputname: str(value)
+                }
+            }
+            
+            self._log.debug("Appendinging: "+item)
+            json_body.append(item)
+            
+        result = self._influxdb_client.write_points(json_body)
+            
+        if not result:
+            self._log.info("Writing error on influxdb")
+            return False
+        
         return True
 
     def action(self):
@@ -244,7 +294,7 @@ class EdgeMqttInterfacer(EmonHubInterfacer):
         :return:
         """
         
-        super (EdgeMqttInterfacer, self).set(**kwargs)
+        super (EdgeInterfacer, self).set(**kwargs)
 
         for key, setting in self._mqtt_settings.items():
             #valid = False

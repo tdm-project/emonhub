@@ -5,7 +5,7 @@ __all__ = [
   "EmonHubPacketGenInterfacer",
   "EmonHubEmoncmsHTTPInterfacer",
   "EmonHubMqttInterfacer",
-  "EdgeMqttInterfacer",
+  "EdgeInterfacer",
   "EmonHubTx3eInterfacer",
   "EmonHubVEDirectInterfacer",
   # "EmonHubSmilicsInterfacer",
