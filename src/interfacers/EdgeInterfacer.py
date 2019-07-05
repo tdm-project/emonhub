@@ -64,7 +64,7 @@ class EdgeInterfacer(EmonHubInterfacer):
         )
         
         self._influxdb_dbs = self._influxdb_client.get_list_database()
-        if _db not in [_d['name'] for _d in self.influxdb__dbs]:
+        if _db not in [_d['name'] for _d in self.influxdb_dbs]:
             self._log.info("InfluxDB database '{:s}' not found. Creating a new one.".format(_db))
         self._influxdb_client.create_database(_db)
     
