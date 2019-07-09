@@ -56,7 +56,8 @@ class EdgeInterfacer(EmonHubInterfacer):
     def isInfluxConnected( self ):
         #self._log.debug('Ping Influxdb')
         try:
-            client.ping()
+            p = self._influxdb_client.ping()
+            self._log.debug('Ping: ' + str(p)) 
             return True
         except:
             return False
@@ -77,9 +78,9 @@ class EdgeInterfacer(EmonHubInterfacer):
         )
         
         if self.isInfluxConnected():
-            self._log.info('Influxdb connected')
+            self._log.debug('Influxdb connected')
         else:
-            self._log.info('Influxdb NOT connected')
+            self._log.debug('Influxdb NOT connected')
         
         if self.isInfluxConnected():
             self._influxdb_dbs = self._influxdb_client.get_list_database()
