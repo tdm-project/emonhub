@@ -183,6 +183,7 @@ class EdgeInterfacer(EmonHubInterfacer):
                     self._log.info("Publishing error? returned 4")
                     return False
                     
+        self._log.debug("PING: " + str(self._influxdb_client.ping()))
         if self._influxdb_client.ping() == None:
             self.influxdb_connect()
         
