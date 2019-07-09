@@ -54,7 +54,7 @@ class EdgeInterfacer(EmonHubInterfacer):
 
 
     def isInfluxConnected( self ):
-
+        self._log.debug('Ping Influxdb')
         try:
             client.ping()
             return True
@@ -65,6 +65,7 @@ class EdgeInterfacer(EmonHubInterfacer):
 
     def influxdb_connect(self):
         
+        self._log.info('Connecting Influxdb')
         _db = 'Emon'
         
         self._influxdb_client = influxdb.InfluxDBClient(
