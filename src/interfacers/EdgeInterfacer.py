@@ -51,7 +51,18 @@ class EdgeInterfacer(EmonHubInterfacer):
         self._influxdb_client = None
         self.influxdb_connect()
     
+
+
+    def isInfluxConnected( self ):
+
+        try:
+            client.ping()
+            return True
+        except:
+            return False
     
+
+
     def influxdb_connect(self):
         
         _db = 'Emon'
@@ -64,10 +75,11 @@ class EdgeInterfacer(EmonHubInterfacer):
             database=_db
         )
         
-        self._influxdb_dbs = self._influxdb_client.get_list_database()
-        if _db not in [_d['name'] for _d in self._influxdb_dbs]:
-            self._log.info("InfluxDB database '{:s}' not found. Creating a new one.".format(_db))
-        self._influxdb_client.create_database(_db)
+        if self.isInfluxConnected():
+            self._influxdb_dbs = self._influxdb_client.get_list_database()
+            if _db not in [_d['name'] for _d in self._influxdb_dbs]:
+                self._log.info("InfluxDB database '{:s}' not found. Creating a new one.".format(_db))
+            self._influxdb_client.create_database(_db)
     
     
     def add(self, cargo):
@@ -183,39 +195,38 @@ class EdgeInterfacer(EmonHubInterfacer):
                     self._log.info("Publishing error? returned 4")
                     return False
                     
-        self._log.debug("PING: " + str(self._influxdb_client.ping()))
-        if self._influxdb_client.ping() == None:
+        if not self.isInfluxConnected():
             self.influxdb_connect()
+        else:
+            frame = databuffer[0]
+            nodename = frame['node']
+            nodeid = frame['nodeid']
+            t_now = datetime.now().timestamp()
         
-        frame = databuffer[0]
-        nodename = frame['node']
-        nodeid = frame['nodeid']
-        t_now = datetime.now().timestamp()
+            json_body = []
         
-        json_body = []
-        
-        for i in range(0,len(frame['data'])):
-            inputname = str(i+1)
-            if i<len(frame['names']):
-                inputname = frame['names'][i]
-            value = frame['data'][i]
+            for i in range(0,len(frame['data'])):
+                inputname = str(i+1)
+                if i<len(frame['names']):
+                    inputname = frame['names'][i]
+                value = frame['data'][i]
             
-            item = {
-                "measurement": nodename,
-                "time": int(t_now), # int(time.time()) 
-                "fields": {
-                    inputname: value
+                item = {
+                    "measurement": nodename,
+                    "time": int(t_now), # int(time.time()) 
+                    "fields": {
+                        inputname: value
+                     }
                 }
-            }
             
-            self._log.debug("Appendinging: " + str(item))
-            json_body.append(item)
+                self._log.debug("Appendinging: " + str(item))
+                json_body.append(item)
             
-        result = self._influxdb_client.write_points(json_body, time_precision='s')
+            result = self._influxdb_client.write_points(json_body, time_precision='s')
             
-        if not result:
-            self._log.info("Writing error on influxdb")
-            return False
+            if not result:
+                self._log.info("Writing error on influxdb")
+                return False
         
         return True
 
