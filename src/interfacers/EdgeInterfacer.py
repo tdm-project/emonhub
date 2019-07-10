@@ -216,7 +216,11 @@ class EdgeInterfacer(EmonHubInterfacer):
                 inputname = str(i+1)
                 if i<len(frame['names']):
                     inputname = frame['names'][i]
-                value = frame['data'][i]
+                if (inputname == 'pulse') or (inputname == 'pulsecount'):
+                    values = int(frames['data'][i])
+                    self._log.debug('Pulse: ' + values)
+                else:
+                    value = float(frame['data'][i])
             
                 item = {
                     "measurement": nodename,
