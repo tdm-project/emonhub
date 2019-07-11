@@ -217,7 +217,7 @@ class EdgeInterfacer(EmonHubInterfacer):
                 if i<len(frame['names']):
                     inputname = frame['names'][i]
                 if (inputname == 'pulse') or (inputname == 'pulsecount'):
-                    values = int(frames['data'][i])
+                    values = int(frame['data'][i])
                     self._log.debug('Pulse: ' + values)
                 else:
                     value = float(frame['data'][i])
