@@ -57,7 +57,7 @@ class EdgeInterfacer(EmonHubInterfacer):
         #self._log.debug('Ping Influxdb')
         try:
             p = self._influxdb_client.ping()
-            self._log.debug('Ping: ' + str(p)) 
+            #self._log.debug('Ping: ' + str(p)) 
             return True
         except:
             return False
@@ -218,10 +218,10 @@ class EdgeInterfacer(EmonHubInterfacer):
                     inputname = frame['names'][i]
                 if (inputname == 'pulse') or (inputname == 'pulsecount'):
                     value = int(frame['data'][i])
-                    self._log.debug('Pulse: ' + str(value))
+                    #self._log.debug('Pulse: ' + str(value))
                 else:
                     value = float(frame['data'][i])
-                    self._log.debug('Float: ' + str(value))
+                    #self._log.debug('Float: ' + str(value))
             
                 item = {
                     "measurement": nodename,
@@ -231,7 +231,7 @@ class EdgeInterfacer(EmonHubInterfacer):
                      }
                 }
             
-                self._log.debug("Appendinging: " + str(item))
+                self._log.debug("Appending: " + str(item))
                 json_body.append(item)
             
             result = self._influxdb_client.write_points(json_body, time_precision='s')
