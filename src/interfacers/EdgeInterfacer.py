@@ -2,11 +2,33 @@
 
 """
 import time
-from datetime import datetime
+import json
+import datetime
 import paho.mqtt.client as mqtt
 import influxdb
 from emonhub_interfacer import EmonHubInterfacer
 import Cargo
+
+PARAMETERS_ENERGY_MAP = {
+    'power1': ('L1', 'apparentPower'),
+    'power2': ('L2', 'apparentPower'),
+    'power3': ('L3', 'apparentPower'),
+    'power4': ('L4', 'apparentPower'),
+    'pulse': ('PULSE', 'pulses'),
+    'vrms': ('V', 'voltage')
+}
+
+PARAMETERS_WEATHER_MAP = {
+    'temp1': ('DS18B20-1', 'temperature'),
+    'temp2': ('DS18B20-2', 'temperature'),
+    'temp3': ('DS18B20-3', 'temperature'),
+    'temp4': ('DS18B20-4', 'temperature'),
+    'temp5': ('DS18B20-5', 'temperature'),
+    'temp6': ('DS18B20-6', 'temperature')
+}
+
+ENERGY_KEYS = PARAMETERS_ENERGY_MAP.keys()
+WEATHER_KEYS = PARAMETERS_WEATHER_MAP.keys()
 
 class EdgeInterfacer(EmonHubInterfacer):
 
@@ -147,68 +169,58 @@ class EdgeInterfacer(EmonHubInterfacer):
             frame = databuffer[0]
             nodename = frame['node']
             nodeid = frame['nodeid']
+            rssi = frame['rssi']
             
-            # ----------------------------------------------------------
-            # General MQTT format: emonhub/rx/emonpi/power1 ... 100
-            # ----------------------------------------------------------
-            if int(self._settings["nodevar_format_enable"])==1:
-                
-                for i in range(0,len(frame['data'])):
-                    inputname = str(i+1)
-                    if i<len(frame['names']):
-                        inputname = frame['names'][i]
-                    value = frame['data'][i]
+            _now = datetime.datetime.now().timestamp()
+            _timestamp = int(_now)
+            _dateobserved = datetime.datetime.fromtimestamp(
+                _timestamp, tz=datetime.timezone.utc).isoformat()
 
-                    # Construct topic
-                    # 20190705 modificato secondo standard TDM EDGE MQTT
-                    topic = self._settings["nodevar_format_basetopic"]+nodename+"."+inputname
-                    payload = str(value)
-                    
-                    self._log.debug("Publishing: "+topic+" "+payload)
-                    result =self._mqttc.publish(topic, payload=payload, qos=2, retain=False)
-                    
-                    if result[0]==4:
-                        self._log.info("Publishing error? returned 4")
-                        return False
+            _full_message=dict(zip(frame['names'], frame['data']))
 
-                # send rssi
-                if 'rssi' in frame:
-                    topic = self._settings["nodevar_format_basetopic"]+nodename+".rssi"
-                    payload = str(frame['rssi'])
+            for _measure, _value in _full_message.items():
+                _topic = ""
+                _payload = {}
 
-                    self._log.debug("Publishing: "+topic+" "+payload)
-                    result =self._mqttc.publish(topic, payload=payload, qos=2, retain=False)
+                if _measure in ENERGY_KEYS:
+                    _sensor, _parameter = PARAMETERS_ENERGY_MAP[_measure]
+                    _topic = f"EnergyMonitor/{nodename}-{nodeid:02}.{_sensor}"
+                    _payload = {
+                        "dateObserved": _dateobserved,
+                        "timestamp": _timestamp,
+                        'rssi': rssi,
+                        _parameter: _value
+                        }
 
-                    if result[0]==4:
-                        self._log.info("Publishing error? returned 4")
-                        return False
-            
-            # ----------------------------------------------------------    
-            # Emoncms nodes module format: emonhub/rx/10/values ... 100,200,300
-            # ----------------------------------------------------------
-            if int(self._settings["node_format_enable"])==1:
-            
-                topic = self._settings["node_format_basetopic"]+"rx/"+str(nodeid)+"/values"
-                
-                payload = ",".join(map(str,frame['data']))
+                elif _measure in WEATHER_KEYS:
+                    if -40 < _value < 150:
+                        _sensor, _parameter = PARAMETERS_WEATHER_MAP[_measure]
+                        _topic = f"WeatherObserved/{nodename}-{nodeid:02}.{_sensor}"
+                        _payload = {
+                            "dateObserved": _dateobserved,
+                            "timestamp": _timestamp,
+                        'rssi': rssi,
+                            _parameter: _value
+                            }
+                    else:
+                        continue
+                else:
+                    continue
 
-                if 'rssi' in frame:
-                    payload = payload+","+str(frame['rssi'])
+                self._log.debug(f"Publishing: {_topic} {_payload}")
+                result = self._mqttc.publish(_topic, payload=json.dumps(_payload), qos=2, retain=False)
 
-                self._log.info("Publishing: "+topic+" "+payload)
-                result =self._mqttc.publish(topic, payload=payload, qos=2, retain=False)
-                
                 if result[0]==4:
                     self._log.info("Publishing error? returned 4")
                     return False
-                    
+
         if not self.isInfluxConnected():
             self.influxdb_connect()
         else:
             frame = databuffer[0]
             nodename = frame['node']
             nodeid = frame['nodeid']
-            t_now = datetime.now().timestamp()
+            t_now = datetime.datetime.now().timestamp()
         
             json_body = []
         
