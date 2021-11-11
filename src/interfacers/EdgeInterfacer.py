@@ -220,6 +220,7 @@ class EdgeInterfacer(EmonHubInterfacer):
             frame = databuffer[0]
             nodename = frame['node']
             nodeid = frame['nodeid']
+            rssi = frame['rssi']
             t_now = datetime.datetime.now().timestamp()
         
             json_body = []
@@ -243,6 +244,17 @@ class EdgeInterfacer(EmonHubInterfacer):
                      }
                 }
             
+                self._log.debug("Appending: " + str(item))
+                json_body.append(item)
+
+            if rssi:
+                item = {
+                    "measurement": nodename,
+                    "time": int(t_now), # int(time.time())
+                    "fields": {
+                        "rssi": rssi
+                     }
+                }
                 self._log.debug("Appending: " + str(item))
                 json_body.append(item)
             
